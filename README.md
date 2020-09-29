@@ -1,77 +1,52 @@
 # RE Analysis
 
-This repo is for "xxxxxx".
+Dataset and code for [Learning from Context or Names? An Empirical Study on Neural Relation Extraction](https://github.com/thunlp/RE-Context-or-Names). 
 
 ### Quick Start
 
-Firstly, Install dependencies as described in following section. 
+You can quickly run our code by following steps:
 
-Then, download dataset in `data` directory and download our pretrained model in `ckpt` directory if you need. 
+- Install dependencies as described in following section. 
+- Download dataset to `./data` directory and download our pretrained model to `./ckpt` directory if you need. 
 
-Then, run `bash init.sh` to pre-process data. 
-
-Finally, you can pretrain your own model or finetuning on different dataset.  
+- Run `bash init.sh` to pre-process data. 
+- Pretrain your own model or finetune on different RE datasets.  
 
 ### Dependencies
 
-We provide `requirement.txt` to install dependencies conveniently.  You can run the following script to install dependencies.
+Run the following script to install dependencies.
 
-```
+```shell
 pip install -r requirement.txt
 ```
 
-But you should install transformers manually. We use huggingface transformers to implement Bert, and the version is 2.5.0. You need clone or download [transformers repo](https://github.com/huggingface/transformers). And in  `src/transformers/modeling_bert.py`  class `BertForMaskedLM` function `forward()`, you should add 
+**However, you need install following dependencies manually.**
+
+#### transformers
+
+We use huggingface transformers to implement Bert, and the version is 2.5.0. You need clone or download [transformers repo](https://github.com/huggingface/transformers). And in  `src/transformers/modeling_bert.py`  class `BertForMaskedLM` function `forward()`, you should add 
 
 ```
 outputs = (sequence_output,) + outputs
 ```
 
-before `return outputs`.  Code snippet in `forward()` is following:
-
-```python
-...
-# Although this may seem awkward, BertForMaskedLM supports two scenarios:
-# 1. If a tensor that contains the indices of masked labels is provided,
-#    the cross-entropy is the MLM cross-entropy that measures the likelihood
-#    of predictions for masked words.
-# 2. If `lm_labels` is provided we are in a causal scenario where we
-#    try to predict the next token for each input in the decoder.
-if masked_lm_labels is not None:
-            loss_fct = CrossEntropyLoss()  # -100 index = padding token
-            masked_lm_loss = loss_fct(prediction_scores.view(-1, self.config.vocab_size), masked_lm_labels.view(-1))
-            outputs = (masked_lm_loss,) + outputs
-
-if lm_labels is not None:
-# we are doing next-token prediction; shift prediction scores and input ids by one
-	prediction_scores = prediction_scores[:, :-1, :].contiguous()
-    lm_labels = lm_labels[:, 1:].contiguous()
-    loss_fct = CrossEntropyLoss()
-    ltr_lm_loss = loss_fct(prediction_scores.view(-1, self.config.vocab_size), lm_labels.view(-1))
-    outputs = (ltr_lm_loss,) + outputs
-
-outputs = (sequence_output,) + outputs # This line should be addad by yourself.
-
-return outputs  # (masked_lm_loss), (ltr_lm_loss), prediction_scores, (hidden_states), (attentions)
-...
-```
-
-And then, use 
+before `return outputs`.  And then, use 
 
 ```
 pip install .
 ```
 
-to install transformers.
+to install transformers manually.
 
  ### Dataset 
 
-You can download our dataset from [google drive]() or [Tsinghua cloud](https://cloud.tsinghua.edu.cn/f/f55fd09903c94baa9436/?dl=1). And then place the dataset in `data` directory.(You may need `mkdir data`)
+You can download our dataset from [google drive]() or [Tsinghua cloud](https://cloud.tsinghua.edu.cn/f/f55fd09903c94baa9436/?dl=1). And then place the dataset in `./data` directory.(You may need `mkdir data`)
 
 If you want use your own dataset to pretrain model, please ensure that the format is the same with our dataset released.
 
  ### Pretrained Model
 
-You can download our pretrained model MTB from [google drive]() or [Tsinghua cloud](https://cloud.tsinghua.edu.cn/f/5ce773cc67294ce488e5/?dl=1), CP from [google drive]() or [Tsinghua cloud](https://cloud.tsinghua.edu.cn/f/4097d1055962483cb6d9/?dl=1). And then place them in `ckpt` directory.(You may need `mkdir ckpt`)
+You can download our pretrained model MTB from [google drive]() or [Tsinghua cloud](https://cloud.tsinghua.edu.cn/f/5ce773cc67294ce488e5/?dl=1), CP from [google drive]() or [Tsinghua cloud](https://cloud.tsinghua.edu.cn/f/4097d1055962483cb6d9/?dl=1). And then place them in `./ckpt` directory.(You may need `mkdir ckpt`)
 
 ### Pretrain
 
@@ -112,22 +87,22 @@ python -m torch.distributed.launch --nproc_per_node 4  main.py \
 
 ##### Supervised RE
 
-You can download tacred, wiki80, semeval from [OpenNRE](https://github.com/thunlp/OpenNRE), chemprot from [scibert](https://github.com/allenai/scibert). Please ensure every benchmark has `train.txt`, `dev.txt`,`test.txt`and `rel2id.json`(**NA must be 0 if this benchmark has NA relation**). And `train.txt`(the same as `dev.txt`, `text.txt`) should have multiple lines, each line has the following format(For convenience of reading, the following example is in multiple lines):
+Download tacred, wiki80, semeval from [OpenNRE](https://github.com/thunlp/OpenNRE), chemprot from [scibert](https://github.com/allenai/scibert). Please ensure every benchmark has `train.txt`, `dev.txt`,`test.txt`and `rel2id.json`(**NA must be 0 if this benchmark has NA relation**). And `train.txt`(the same as `dev.txt`, `text.txt`) should have multiple lines, each line has the following json-format:
 
 ```python
 {
     "tokens":["Microsoft", "was", "founded", "by", "Bill", "Gates", "."], 
     "h":{
-        "name": "Microsotf", "pos":[0,1]
+        "name": "Microsotf", "pos":[0,1]  # Left closed and right open interval
     }
     "t":{
-        "name": "Bill Gates", "pos":[4,6]
+        "name": "Bill Gates", "pos":[4,6] # Left closed and right open interval
     }
     "relation": "founded_by"
 }
 ```
 
-And just run the following scirpt
+Run the following scirpt:
 
 ```shell
 bash run.sh
@@ -148,7 +123,7 @@ done
 
 ##### FewShot RE
 
-You need clone or download [FewRel](https://github.com/thunlp/FewRel). You should use Bert as encoder and just need load pretrained model to finetune on the FewShot dataset. 
+You need clone or download [FewRel](https://github.com/thunlp/FewRel). And use Bert as encoder and load pretrained model to finetune on the FewShot dataset. 
 
 ```python
 ckpt = torch.load(path/to/your/ckpt)
