@@ -1,6 +1,6 @@
 # RE Analysis
 
-Dataset and code for [Learning from Context or Names? An Empirical Study on Neural Relation Extraction](https://github.com/thunlp/RE-Context-or-Names). 
+Dataset and code for [Learning from Context or Names? An Empirical Study on Neural Relation Extraction](https://arxiv.org/abs/2010.01923). 
 
 ### Quick Start
 
@@ -87,7 +87,7 @@ python -m torch.distributed.launch --nproc_per_node 4  main.py \
 
 ##### Supervised RE
 
-Download tacred, wiki80, semeval from [OpenNRE](https://github.com/thunlp/OpenNRE), chemprot from [scibert](https://github.com/allenai/scibert). Please ensure every benchmark has `train.txt`, `dev.txt`,`test.txt`and `rel2id.json`(**NA must be 0 if this benchmark has NA relation**). And `train.txt`(the same as `dev.txt`, `text.txt`) should have multiple lines, each line has the following json-format:
+Download TACRED from [LDC](https://catalog.ldc.upenn.edu/ LDC2018T24) , Wiki80,  SemEval from [OpenNRE](https://github.com/thunlp/OpenNRE), ChemProt from [scibert](https://github.com/allenai/scibert). Please ensure every benchmark has `train.txt`, `dev.txt`,`test.txt`and `rel2id.json`(**NA must be 0 if this benchmark has NA relation**). And `train.txt`(the same as `dev.txt`, `text.txt`) should have multiple lines, each line has the following json-format:
 
 ```python
 {
@@ -130,3 +130,4 @@ ckpt = torch.load(path/to/your/ckpt)
 bert.load_state_dict(ckpt["bert-base"])
 ```
 
+### Cite
