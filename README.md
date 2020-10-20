@@ -24,18 +24,13 @@ pip install -r requirement.txt
 
 #### transformers
 
-We use huggingface transformers to implement Bert, and the version is 2.5.0. You need clone or download [transformers repo](https://github.com/huggingface/transformers). And in  `src/transformers/modeling_bert.py`  class `BertForMaskedLM` function `forward()`, you should add 
+We use huggingface transformers to implement Bert. You  need clone or download [transformers repo](https://github.com/huggingface/transformers). 
 
-```
-outputs = (sequence_output,) + outputs
-```
-
-before `return outputs`.  And then, use 
-
+Function `forward` in class `BertForMaskedLM` doesn't return `sequence_output` which we use in our pre-training step. So you should manually add `sequence_output` to its output.  
+And then, use 
 ```
 pip install .
 ```
-
 to install transformers manually.
 
  ### Dataset 
@@ -87,7 +82,7 @@ python -m torch.distributed.launch --nproc_per_node 4  main.py \
 
 ##### Supervised RE
 
-Download TACRED from [LDC](https://catalog.ldc.upenn.edu/ LDC2018T24) , Wiki80,  SemEval from [OpenNRE](https://github.com/thunlp/OpenNRE), ChemProt from [scibert](https://github.com/allenai/scibert). Please ensure every benchmark has `train.txt`, `dev.txt`,`test.txt`and `rel2id.json`(**NA must be 0 if this benchmark has NA relation**). And `train.txt`(the same as `dev.txt`, `text.txt`) should have multiple lines, each line has the following json-format:
+Download TACRED from [LDC](https://catalog.ldc.upenn.edu/LDC2018T24) , Wiki80,  SemEval from [OpenNRE](https://github.com/thunlp/OpenNRE), ChemProt from [scibert](https://github.com/allenai/scibert). Please ensure every benchmark has `train.txt`, `dev.txt`,`test.txt`and `rel2id.json`(**NA must be 0 if this benchmark has NA relation**). And `train.txt`(the same as `dev.txt`, `text.txt`) should have multiple lines, each line has the following json-format:
 
 ```python
 {

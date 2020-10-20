@@ -1,7 +1,7 @@
 pandas==0.25.3
 numpy==1.16.4
 matplotlib==3.1.1
-pytorch_metric_learning==0.9.81
+pytorch_metric_learning
 spacy==2.2.4
 tqdm==4.46.0
 torch==1.4.0
