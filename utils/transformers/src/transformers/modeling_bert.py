@@ -1179,14 +1179,16 @@ class BertForMaskedLM(BertPreTrainedModel):
             loss_fct = CrossEntropyLoss()  # -100 index = padding token
             masked_lm_loss = loss_fct(prediction_scores.view(-1, self.config.vocab_size), labels.view(-1))
 
-        if not return_dict:
+        # if not return_dict:
+        if False:   #######################! We change this condition into Fasle. -- RE-Context-or-Names !#################
             output = (prediction_scores,) + outputs[2:]
             return ((masked_lm_loss,) + output) if masked_lm_loss is not None else output
 
         return MaskedLMOutput(
             loss=masked_lm_loss,
             logits=prediction_scores,
-            hidden_states=outputs.hidden_states,
+            # hidden_states=outputs.hidden_states,
+            hidden_states=outputs.sequence_output,   #######################! We change this line to return the last hidden state. -- RE-Context-or-Names !#################
             attentions=outputs.attentions,
         )
 
