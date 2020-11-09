@@ -3,7 +3,7 @@ import pdb
 import torch
 import torch.nn as nn 
 from pytorch_metric_learning.losses import NTXentLoss
-from transformers import BertForMaskedLM, BertTokenizer, BertForPreTraining
+from transformers import BertForMaskedLM, BertForPreTraining, BertTokenizer
 
 def mask_tokens(inputs, tokenizer, not_mask_pos=None):
     """Prepare masked tokens inputs/labels for masked language modeling: 80% MASK, 10% random, 10% original.
