@@ -83,6 +83,8 @@ def main():
             help='seed')
     parser.add_argument('--path', default=None,
             help='path to ckpt')
+    parser.add_argument('--mode', default="C+M",
+            help='mode {C+M, OnlyC, OnlyM}')
 
     opt = parser.parse_args()
     random.seed(opt.seed)
@@ -123,7 +125,8 @@ def main():
             sentence_encoder = BERTSentenceEncoder(
                     pretrain_ckpt,
                     max_length,
-                    opt.path)
+                    opt.path,
+                    opt.mode)
     elif encoder_name == 'roberta':
         pretrain_ckpt = opt.pretrain_ckpt or 'roberta-base'
         if opt.pair:
