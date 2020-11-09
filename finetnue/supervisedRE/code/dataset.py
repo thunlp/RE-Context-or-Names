@@ -10,7 +10,7 @@ import random
 import torch 
 import numpy as np 
 from torch.utils import data
-from utils import EntityMarker
+from utils.utils import EntityMarker
 
 
 class REDataset(data.Dataset):

@@ -12,7 +12,7 @@ import torch
 import numpy as np  
 from collections import Counter
 from torch.utils import data
-from utils import EntityMarker
+from utils.utils import EntityMarker
 
 
 class CPDataset(data.Dataset):

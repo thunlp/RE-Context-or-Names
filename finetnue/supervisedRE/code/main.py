@@ -165,7 +165,7 @@ def train(args, model, train_dataloader, dev_dataloader, test_dataloader, devBag
 
 
     print("@RESULT: " + args.dataset +" Test score is %.3f" % best_test_score)
-    f = open("../../log/re_log", 'a+')
+    f = open("log/re_log", 'a+')
     if args.ckpt_to_load == "None":
         f.write("bert-base\t" + args.dataset + "\t" + str(time.ctime())  +"\n")
     else:
@@ -267,27 +267,27 @@ if __name__ == "__main__":
     # set seed
     set_seed(args)
         
-    if not os.path.exists("../../log"):
-        os.mkdir("../../log")
+    if not os.path.exists("log"):
+        os.mkdir("log")
     
     # params for dataloader
     if args.train_prop == 1:
         print("Use all train data!")
-        train_set = REDataset("../../data/"+args.dataset, "train.txt", args)
+        train_set = REDataset("data/"+args.dataset, "train.txt", args)
     elif args.train_prop == 0.1:
         print("Use 10% train data!")
-        train_set = REDataset("../../data/"+args.dataset, "train_0.1.txt", args)
+        train_set = REDataset("data/"+args.dataset, "train_0.1.txt", args)
     elif args.train_prop == 0.01:
         print("Use 1% train data!")
-        train_set = REDataset("../../data/"+args.dataset, "train_0.01.txt", args)
-    dev_set = REDataset("../../data/"+args.dataset, "dev.txt", args)
-    test_set = REDataset("../../data/"+args.dataset, "test.txt", args)
+        train_set = REDataset("data/"+args.dataset, "train_0.01.txt", args)
+    dev_set = REDataset("data/"+args.dataset, "dev.txt", args)
+    test_set = REDataset("data/"+args.dataset, "test.txt", args)
 
     train_dataloader = data.DataLoader(train_set, batch_size=args.batch_size_per_gpu, shuffle=True)        
     dev_dataloader = data.DataLoader(dev_set, batch_size=args.batch_size_per_gpu, shuffle=False)
     test_dataloader = data.DataLoader(test_set, batch_size=args.batch_size_per_gpu, shuffle=False)
     
-    rel2id = json.load(open(os.path.join("../../data/"+args.dataset, "rel2id.json")))
+    rel2id = json.load(open(os.path.join("data/"+args.dataset, "rel2id.json")))
     args.rel_num = len(rel2id)
     
     model = REModel(args)

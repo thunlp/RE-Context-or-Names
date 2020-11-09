@@ -226,11 +226,11 @@ if __name__ == '__main__':
     parser.add_argument("--type2id", action="store_true", help="Whether generating type2id.json or not")
     args = parser.parse_args()
 
-    sample_trainset(os.path.join('../data', args.dataset), 0.01)
-    sample_trainset(os.path.join('../data', args.dataset), 0.1)
-    # Please entities in `args.dataset` have type infomation. 
+    sample_trainset(args.dataset, 0.01)
+    sample_trainset(args.dataset, 0.1)
+    # Please make sure entities in `args.dataset` have type infomation. 
     if args.type2id:
-        get_type2id(os.path.join('../data', args.dataset))     
+        get_type2id(args.dataset)
 
 
     
