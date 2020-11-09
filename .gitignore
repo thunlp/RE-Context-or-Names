@@ -8,9 +8,9 @@ ckpt/
 
 **/data
 
-!finetune/supervisedRE/data
-
 !finetune/fewshotRE/FewRel/data
+
+!finetune/supervisedRE/data
 
 **/ckpt
 
