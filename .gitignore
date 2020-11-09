@@ -6,7 +6,11 @@ ckpt/
 
 .vscode/
 
-data/
+**/data
+
+!finetune/supervisedRE/data
+
+!finetune/fewshotRE/FewRel/data
 
 **/ckpt
 
