@@ -216,8 +216,6 @@ def eval_ACC(args, model, dataloader):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="latentRE")
-    parser.add_argument("--cuda", dest="cuda", type=str, 
-                        default="4", help="cuda")
     parser.add_argument("--batch_size_per_gpu", dest="batch_size_per_gpu", type=int, 
                         default=0, help="batch size pre gpu")
     parser.add_argument("--dataset", dest="dataset", type=str,
@@ -259,9 +257,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # print args
-    print(args)
-    # set cuda 
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda
+    print('--------args----------')
+    for k in list(vars(args).keys()):
+        print('%s: %s' % (k, vars(args)[k]))
+    print('--------args----------\n')
+ 
     # set seed
     set_seed(args)
         

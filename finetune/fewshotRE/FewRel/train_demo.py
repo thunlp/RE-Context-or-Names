@@ -83,8 +83,8 @@ def main():
             help='seed')
     parser.add_argument('--path', default=None,
             help='path to ckpt')
-    parser.add_argument('--mode', default="C+M",
-            help='mode {C+M, OnlyC, OnlyM}')
+    parser.add_argument('--mode', default="CM",
+            help='mode {CM, OC, OM}')
 
     opt = parser.parse_args()
     random.seed(opt.seed)

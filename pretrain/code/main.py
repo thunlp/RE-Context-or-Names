@@ -177,9 +177,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # print args
-    print(args)
-    # set cuda 
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda
+    print('--------args----------')
+    for k in list(vars(args).keys()):
+        print('%s: %s' % (k, vars(args)[k]))
+    print('--------args----------\n')
+    
+    # set backend
     if args.local_rank == -1:
         device = torch.device("cuda")
     else:

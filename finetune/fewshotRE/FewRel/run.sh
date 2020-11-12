@@ -1,6 +1,6 @@
 array=(42)
-path="paht/to/ckpt"
+path="None"
 for seed in ${array[@]}
 do
-	bash train.sh 7 $seed $path
+	bash train.sh 5 $seed $path
 done
