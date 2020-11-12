@@ -7,7 +7,6 @@ import torch.optim as optim
 import torch.utils as utils
 import sys
 import argparse
-import sklearn.metrics
 import matplotlib
 import pdb
 import numpy as np 
@@ -19,7 +18,6 @@ matplotlib.use('Agg')
 from apex import amp
 from tqdm import tqdm
 from tqdm import trange
-from sklearn import metrics
 from torch.utils import data
 from collections import Counter
 from transformers import AdamW, get_linear_schedule_with_warmup
