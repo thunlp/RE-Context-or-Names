@@ -3,4 +3,3 @@ numpy
 matplotlib
 pytorch_metric_learning
 tqdm
-apex==0.9.10dev
