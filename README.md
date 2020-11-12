@@ -38,6 +38,7 @@ You just need run
 pip install .
 ```
 to install transformers manually.
+
 **apex**
 Install [apex](https://github.com/NVIDIA/apex) under the offical guidance.
 
