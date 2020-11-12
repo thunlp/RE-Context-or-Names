@@ -85,7 +85,7 @@ class CP(nn.Module):
         not_mask_pos[indice, t_pos] = 1
 
         m_input, m_labels = mask_tokens(input.cpu(), self.tokenizer, not_mask_pos)
-        m_outputs = self.model(input_ids=m_input, masked_lm_labels=m_labels, attention_mask=mask)
+        m_outputs = self.model(input_ids=m_input, labels=m_labels, attention_mask=mask)
         m_loss = m_outputs[0]
 
         outputs = m_outputs
@@ -137,8 +137,8 @@ class MTB(nn.Module):
         # masked language model loss
         m_l_input, m_l_labels = mask_tokens(l_input.cpu(), self.tokenizer, l_not_mask_pos)
         m_r_input, m_r_labels = mask_tokens(r_input.cpu(), self.tokenizer, r_not_mask_pos) 
-        m_l_outputs = self.model(input_ids=m_l_input, masked_lm_labels=m_l_labels, attention_mask=l_mask)
-        m_r_outputs = self.model(input_ids=m_r_input, masked_lm_labels=m_r_labels, attention_mask=r_mask)
+        m_l_outputs = self.model(input_ids=m_l_input, labels=m_l_labels, attention_mask=l_mask)
+        m_r_outputs = self.model(input_ids=m_r_input, labels=m_r_labels, attention_mask=r_mask)
         m_loss = m_l_outputs[0] + m_r_outputs[0]
 
         # sentence pair relation loss 

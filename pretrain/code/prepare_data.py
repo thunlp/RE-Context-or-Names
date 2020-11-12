@@ -126,10 +126,10 @@ def process_data_for_CP(data):
         rel2scope[key] = [ll, len(list_data)]
         ll = len(list_data)
     
-    if not os.path.exists("data/CP"):
-        os.mkdir("data/CP")
-    json.dump(list_data, open("data/CP/cpdata.json","w"))
-    json.dump(rel2scope, open("data/CP/rel2scope.json", 'w'))
+    if not os.path.exists("../data/CP"):
+        os.mkdir("../data/CP")
+    json.dump(list_data, open("../data/CP/cpdata.json","w"))
+    json.dump(rel2scope, open("../data/CP/rel2scope.json", 'w'))
 
 
 def process_data_for_MTB(data):
@@ -242,11 +242,11 @@ def process_data_for_MTB(data):
                 break
             entpair2negpair[entpairs[i]].append(entpairs[j])
 
-    if not os.path.exists("data/MTB"):
-        os.mkdir("data/MTB")
-    json.dump(entpair2negpair, open("data/MTB/entpair2negpair.json","w"))
-    json.dump(entpair2scope, open("data/MTB/entpair2scope.json", "w"))
-    json.dump(list_data, open("data/MTB/mtbdata.json", "w"))
+    if not os.path.exists("../data/MTB"):
+        os.mkdir("../data/MTB")
+    json.dump(entpair2negpair, open("../data/MTB/entpair2negpair.json","w"))
+    json.dump(entpair2scope, open("../data/MTB/entpair2scope.json", "w"))
+    json.dump(list_data, open("../data/MTB/mtbdata.json", "w"))
 
 
 def set_seed(seed):
@@ -262,7 +262,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     set_seed(42)
 
-    data = json.load(open("data/exclude_fewrel_distant.json"))
+    data = json.load(open("../data/exclude_fewrel_distant.json"))
     if args.dataset == "CP":
         process_data_for_CP(data)
 

@@ -29,15 +29,15 @@ from model import *
 
 
 def log_loss(step_record, loss_record):
-    if not os.path.exists("img"):
-        os.mkdir("img")
+    if not os.path.exists("../img"):
+        os.mkdir("../img")
     plt.plot(step_record, loss_record, lw=2)
     plt.xlabel('step')
     plt.ylabel('loss')
     plt.title('loss curve')
     plt.legend(loc="upper right")
     plt.grid(True)
-    plt.savefig(os.path.join("img", 'loss_curve.png'))
+    plt.savefig(os.path.join("../img", 'loss_curve.png'))
     plt.close()
 
 def set_seed(args):
@@ -100,14 +100,14 @@ def train(args, model, train_dataset):
                 global_step += 1
 
                 if args.local_rank in [0, -1] and global_step % args.save_step == 0:
-                    if not os.path.exists("ckpt"):
-                        os.mkdir("ckpt")
-                    if not os.path.exists("ckpt/"+args.save_dir):
-                        os.mkdir("ckpt/"+args.save_dir)
+                    if not os.path.exists("../ckpt"):
+                        os.mkdir("../ckpt")
+                    if not os.path.exists("../ckpt/"+args.save_dir):
+                        os.mkdir("../ckpt/"+args.save_dir)
                     ckpt = {
                         'bert-base': model.module.model.bert.state_dict(),
                     }
-                    torch.save(ckpt, os.path.join("ckpt/"+args.save_dir, "ckpt_of_step_"+str(global_step)))
+                    torch.save(ckpt, os.path.join("../ckpt/"+args.save_dir, "ckpt_of_step_"+str(global_step)))
 
                 # if args.local_rank in [0, -1] and global_step % 5 == 0:
                 #     step_record.append(global_step)
@@ -194,9 +194,9 @@ if __name__ == "__main__":
     
     # log train
     if args.local_rank in [0, -1]:
-        if not os.path.exists("log"):
-            os.mkdir("log")
-        with open("log/pretrain_log", 'a+') as f:
+        if not os.path.exists("../log"):
+            os.mkdir("../log")
+        with open("../log/pretrain_log", 'a+') as f:
             f.write(str(time.ctime())+"\n")
             f.write(str(args)+"\n")
             f.write("----------------------------------------------------------------------------\n")
@@ -204,10 +204,10 @@ if __name__ == "__main__":
     # Model and dataset
     if args.model == "MTB":
         model = MTB(args).to(args.device)
-        train_dataset = MTBDataset("data/MTB", args)
+        train_dataset = MTBDataset("../data/MTB", args)
     elif args.model == "CP":
         model = CP(args).to(args.device)
-        train_dataset = CPDataset("data/CP", args)
+        train_dataset = CPDataset("../data/CP", args)
     else:
         raise Exception("No such model! Please make sure that `model` takes the value in {MTB, CP}")
 

@@ -2,7 +2,7 @@ This directory contains code and data for pre-training step.
 
 ### 1. Dataset 
 
-You can download our dataset from [google drive]() or [Tsinghua cloud](https://cloud.tsinghua.edu.cn/f/f55fd09903c94baa9436/?dl=1). And then place the dataset in `./data` directory. (You may need `mkdir data`)
+You can download our dataset from [google drive]() or [Tsinghua cloud](https://cloud.tsinghua.edu.cn/f/f55fd09903c94baa9436/?dl=1). And then place the dataset in `./data` directory. (You may need `mkdir data`) And then run `code/prepare_data.py` to prepare pre-training data.
 
 ### 2. Pretrained Model
 
