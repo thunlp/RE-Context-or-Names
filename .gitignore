@@ -1,26 +1,10 @@
-MTB/
-
-res/
-
-ckpt/
-
 .vscode/
 
-**/data
-
-!finetune/fewshotRE/FewRel/data
-
-!finetune/supervisedRE/data
+pretrain/data
 
 **/ckpt
 
 **/checkpoint
-
-**/log
-
-**/logs
-
-**/*.json
 
 **/__pycache__
 

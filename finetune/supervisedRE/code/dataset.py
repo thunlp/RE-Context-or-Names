@@ -10,6 +10,7 @@ import random
 import torch 
 import numpy as np 
 from torch.utils import data
+sys.path.append("../../../")
 from utils.utils import EntityMarker
 
 
