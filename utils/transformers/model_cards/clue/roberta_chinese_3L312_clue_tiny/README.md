@@ -1,5 +1,5 @@
 ---
-language: zh
+language: chinese
 ---
 
 # Introduction

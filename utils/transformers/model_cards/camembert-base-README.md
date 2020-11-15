@@ -1,8 +1,7 @@
 ---
-language: fr
+language: french
+
 license: mit
-datasets:
-- oscar
 ---
 
 # CamemBERT: a Tasty French Language Model

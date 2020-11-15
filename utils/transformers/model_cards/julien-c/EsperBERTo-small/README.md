@@ -1,5 +1,5 @@
 ---
-language: eo
+language: esperanto
 thumbnail: https://huggingface.co/blog/assets/EsperBERTo-thumbnail-v2.png
 widget:
 - text: "Jen la komenco de bela <mask>."

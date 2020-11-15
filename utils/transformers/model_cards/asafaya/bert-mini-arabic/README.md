@@ -1,5 +1,5 @@
 ---
-language: ar
+language: arabic
 datasets:
 - oscar
 - wikipedia
@@ -9,25 +9,14 @@ datasets:
 
 Pretrained BERT Mini language model for Arabic
 
-_If you use this model in your work, please cite this paper:_
+_If you use this model in your work, please cite this paper (to appear in 2020):_
 
-<!--```
+```
 @inproceedings{
   title={KUISAIL at SemEval-2020 Task 12: BERT-CNN for Offensive Speech Identification in Social Media},
   author={Safaya, Ali and Abdullatif, Moutasem and Yuret, Deniz},
   booktitle={Proceedings of the International Workshop on Semantic Evaluation (SemEval)},
   year={2020}
-}
-```-->
-
-```
-@misc{safaya2020kuisail,
-    title={KUISAIL at SemEval-2020 Task 12: BERT-CNN for Offensive Speech Identification in Social Media},
-    author={Ali Safaya and Moutasem Abdullatif and Deniz Yuret},
-    year={2020},
-    eprint={2007.13184},
-    archivePrefix={arXiv},
-    primaryClass={cs.CL}
 }
 ```
 

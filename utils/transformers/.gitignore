@@ -9,11 +9,8 @@ __pycache__/
 *.so
 
 # tests and logs
-tests/fixtures/*
-!tests/fixtures/sample_text_no_unicode.txt
+tests/fixtures
 logs/
-lightning_logs/
-lang_code_data/
 
 # Distribution / packaging
 .Python
@@ -142,7 +139,6 @@ runs
 /wandb
 /examples/runs
 /examples/**/*.args
-/examples/rag/sweep
 
 # data
 /data
@@ -157,6 +153,3 @@ debug.env
 
 #ctags
 tags
-
-# pre-commit
-.pre-commit*

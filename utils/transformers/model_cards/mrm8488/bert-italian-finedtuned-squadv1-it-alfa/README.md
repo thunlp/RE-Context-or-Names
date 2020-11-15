@@ -1,5 +1,5 @@
 ---
-language: it
+language: italian
 thumbnail:
 ---
 

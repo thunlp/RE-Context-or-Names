@@ -1,5 +1,5 @@
 ---
-language: fr
+language: french
 ---
 
 # CamemBERT: a Tasty French Language Model

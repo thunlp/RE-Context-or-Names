@@ -1,13 +1,11 @@
 ---
 language:
-- en
-- nl
-- de
-- fr
-- it
-- es
-
-license: mit
+- english
+- dutch
+- german
+- french
+- italian
+- spanish
 ---
 
 # bert-base-multilingual-uncased-sentiment

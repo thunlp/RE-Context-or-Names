@@ -27,20 +27,12 @@ from transformers import (
     RobertaTokenizer,
     RobertaTokenizerFast,
 )
-from transformers.configuration_auto import AutoConfig
-from transformers.configuration_roberta import RobertaConfig
-from transformers.testing_utils import (
-    DUMMY_DIFF_TOKENIZER_IDENTIFIER,
-    DUMMY_UNKWOWN_IDENTIFIER,
-    SMALL_MODEL_IDENTIFIER,
-    require_tokenizers,
-    slow,
-)
+from transformers.testing_utils import DUMMY_UNKWOWN_IDENTIFIER, SMALL_MODEL_IDENTIFIER  # noqa: F401
 from transformers.tokenization_auto import TOKENIZER_MAPPING
 
 
 class AutoTokenizerTest(unittest.TestCase):
-    @slow
+    # @slow
     def test_tokenizer_from_pretrained(self):
         for model_name in (x for x in BERT_PRETRAINED_CONFIG_ARCHIVE_MAP.keys() if "japanese" not in x):
             tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -64,15 +56,6 @@ class AutoTokenizerTest(unittest.TestCase):
         self.assertIsInstance(tokenizer, (RobertaTokenizer, RobertaTokenizerFast))
         self.assertEqual(tokenizer.vocab_size, 20)
 
-    def test_tokenizer_from_tokenizer_class(self):
-        config = AutoConfig.from_pretrained(DUMMY_DIFF_TOKENIZER_IDENTIFIER)
-        self.assertIsInstance(config, RobertaConfig)
-        # Check that tokenizer_type ≠ model_type
-        tokenizer = AutoTokenizer.from_pretrained(DUMMY_DIFF_TOKENIZER_IDENTIFIER, config=config)
-        self.assertIsInstance(tokenizer, (BertTokenizer, BertTokenizerFast))
-        self.assertEqual(tokenizer.vocab_size, 12)
-
-    @require_tokenizers
     def test_tokenizer_identifier_with_correct_config(self):
         for tokenizer_class in [BertTokenizer, BertTokenizerFast, AutoTokenizer]:
             tokenizer = tokenizer_class.from_pretrained("wietsedv/bert-base-dutch-cased")
@@ -85,7 +68,6 @@ class AutoTokenizerTest(unittest.TestCase):
 
             self.assertEqual(tokenizer.max_len, 512)
 
-    @require_tokenizers
     def test_tokenizer_identifier_non_existent(self):
         for tokenizer_class in [BertTokenizer, BertTokenizerFast, AutoTokenizer]:
             with self.assertRaises(EnvironmentError):
@@ -105,16 +87,12 @@ class AutoTokenizerTest(unittest.TestCase):
                         msg="Testing if {} is child of {}".format(child_config.__name__, parent_config.__name__)
                     ):
                         self.assertFalse(issubclass(child_config, parent_config))
-
-                        # Check for Slow tokenizer implementation if provided
-                        if child_model_py and parent_model_py:
-                            self.assertFalse(issubclass(child_model_py, parent_model_py))
+                        self.assertFalse(issubclass(child_model_py, parent_model_py))
 
                         # Check for Fast tokenizer implementation if provided
                         if child_model_fast and parent_model_fast:
                             self.assertFalse(issubclass(child_model_fast, parent_model_fast))
 
-    @require_tokenizers
     def test_from_pretrained_use_fast_toggle(self):
         self.assertIsInstance(AutoTokenizer.from_pretrained("bert-base-cased"), BertTokenizer)
         self.assertIsInstance(AutoTokenizer.from_pretrained("bert-base-cased", use_fast=True), BertTokenizerFast)

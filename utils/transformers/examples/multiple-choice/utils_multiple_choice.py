@@ -26,8 +26,8 @@ from enum import Enum
 from typing import List, Optional
 
 import tqdm
-
 from filelock import FileLock
+
 from transformers import PreTrainedTokenizer, is_tf_available, is_torch_available
 
 
@@ -100,12 +100,7 @@ if is_torch_available():
 
             cached_features_file = os.path.join(
                 data_dir,
-                "cached_{}_{}_{}_{}".format(
-                    mode.value,
-                    tokenizer.__class__.__name__,
-                    str(max_seq_length),
-                    task,
-                ),
+                "cached_{}_{}_{}_{}".format(mode.value, tokenizer.__class__.__name__, str(max_seq_length), task,),
             )
 
             # Make sure only the first process in distributed training processes the dataset,
@@ -126,12 +121,7 @@ if is_torch_available():
                     else:
                         examples = processor.get_train_examples(data_dir)
                     logger.info("Training examples: %s", len(examples))
-                    self.features = convert_examples_to_features(
-                        examples,
-                        label_list,
-                        max_seq_length,
-                        tokenizer,
-                    )
+                    self.features = convert_examples_to_features(examples, label_list, max_seq_length, tokenizer,)
                     logger.info("Saving features into cached file %s", cached_features_file)
                     torch.save(self.features, cached_features_file)
 
@@ -174,12 +164,7 @@ if is_tf_available():
                 examples = processor.get_train_examples(data_dir)
             logger.info("Training examples: %s", len(examples))
 
-            self.features = convert_examples_to_features(
-                examples,
-                label_list,
-                max_seq_length,
-                tokenizer,
-            )
+            self.features = convert_examples_to_features(examples, label_list, max_seq_length, tokenizer,)
 
             def gen():
                 for (ex_index, ex) in tqdm.tqdm(enumerate(self.features), desc="convert examples to features"):
@@ -219,8 +204,6 @@ if is_tf_available():
             )
 
         def get_dataset(self):
-            self.dataset = self.dataset.apply(tf.data.experimental.assert_cardinality(len(self.features)))
-
             return self.dataset
 
         def __len__(self):
@@ -506,10 +489,7 @@ class ArcProcessor(DataProcessor):
 
 
 def convert_examples_to_features(
-    examples: List[InputExample],
-    label_list: List[str],
-    max_length: int,
-    tokenizer: PreTrainedTokenizer,
+    examples: List[InputExample], label_list: List[str], max_length: int, tokenizer: PreTrainedTokenizer,
 ) -> List[InputFeatures]:
     """
     Loads a data file into a list of `InputFeatures`

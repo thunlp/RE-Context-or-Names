@@ -1,5 +1,5 @@
 ---
-language: ms
+language: malay
 ---
 
 # Bahasa BERT Model

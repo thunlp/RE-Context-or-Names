@@ -25,14 +25,12 @@ from .test_modeling_tf_common import TFModelTesterMixin, ids_tensor
 
 if is_tf_available():
     import tensorflow as tf
-
-    from transformers.modeling_tf_ctrl import TF_CTRL_PRETRAINED_MODEL_ARCHIVE_LIST, TFCTRLLMHeadModel, TFCTRLModel
+    from transformers.modeling_tf_ctrl import TFCTRLModel, TFCTRLLMHeadModel, TF_CTRL_PRETRAINED_MODEL_ARCHIVE_LIST
 
 
 class TFCTRLModelTester(object):
     def __init__(
-        self,
-        parent,
+        self, parent,
     ):
         self.parent = parent
         self.batch_size = 13
@@ -91,10 +89,9 @@ class TFCTRLModelTester(object):
             # hidden_dropout_prob=self.hidden_dropout_prob,
             # attention_probs_dropout_prob=self.attention_probs_dropout_prob,
             n_positions=self.max_position_embeddings,
-            n_ctx=self.max_position_embeddings,
+            n_ctx=self.max_position_embeddings
             # type_vocab_size=self.type_vocab_size,
-            # initializer_range=self.initializer_range,
-            return_dict=True,
+            # initializer_range=self.initializer_range
         )
 
         head_mask = ids_tensor([self.num_hidden_layers, self.num_attention_heads], 2)
@@ -114,20 +111,30 @@ class TFCTRLModelTester(object):
     def create_and_check_ctrl_model(self, config, input_ids, input_mask, head_mask, token_type_ids, *args):
         model = TFCTRLModel(config=config)
         inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-        result = model(inputs)
+        sequence_output = model(inputs)[0]
 
         inputs = [input_ids, None, input_mask]  # None is the input for 'past'
-        result = model(inputs)
+        sequence_output = model(inputs)[0]
 
-        result = model(input_ids)
+        sequence_output = model(input_ids)[0]
 
-        self.parent.assertEqual(result.last_hidden_state.shape, (self.batch_size, self.seq_length, self.hidden_size))
+        result = {
+            "sequence_output": sequence_output.numpy(),
+        }
+        self.parent.assertListEqual(
+            list(result["sequence_output"].shape), [self.batch_size, self.seq_length, self.hidden_size]
+        )
 
     def create_and_check_ctrl_lm_head(self, config, input_ids, input_mask, head_mask, token_type_ids, *args):
         model = TFCTRLLMHeadModel(config=config)
         inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-        result = model(inputs)
-        self.parent.assertEqual(result.logits.shape, (self.batch_size, self.seq_length, self.vocab_size))
+        prediction_scores = model(inputs)[0]
+        result = {
+            "prediction_scores": prediction_scores.numpy(),
+        }
+        self.parent.assertListEqual(
+            list(result["prediction_scores"].shape), [self.batch_size, self.seq_length, self.vocab_size]
+        )
 
     def prepare_config_and_inputs_for_common(self):
         config_and_inputs = self.prepare_config_and_inputs()

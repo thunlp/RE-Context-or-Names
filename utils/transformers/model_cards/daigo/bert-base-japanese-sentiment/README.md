@@ -1,6 +1,6 @@
 ---
 language:
-- ja
+- japanese
 ---
 
 binary classification

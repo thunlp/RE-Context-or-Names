@@ -1,5 +1,5 @@
 ---
-language: en
+language: english
 ---
 
 # Electra small ⚡ + SQuAD v2 ❓

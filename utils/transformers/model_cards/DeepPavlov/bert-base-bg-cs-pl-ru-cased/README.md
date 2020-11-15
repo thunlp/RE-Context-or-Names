@@ -1,9 +1,9 @@
 ---
 language:
-- bg
-- cs
-- pl
-- ru
+- bulgarian
+- czech
+- polish
+- russian
 ---
 
 # bert-base-bg-cs-pl-ru-cased

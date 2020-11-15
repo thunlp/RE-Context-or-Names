@@ -1,5 +1,5 @@
 ---
-language: zh
+language: chinese
 ---
 
 ## xlnet_chinese_large

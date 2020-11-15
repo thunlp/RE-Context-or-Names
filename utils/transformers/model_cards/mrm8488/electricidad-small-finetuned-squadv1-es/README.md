@@ -1,5 +1,5 @@
 ---
-language: es
+language: spanish
 thumbnail: https://imgur.com/uxAvBfh
 ---
 

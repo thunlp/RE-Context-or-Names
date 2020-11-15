@@ -1,5 +1,5 @@
 ---
-language: en
+language: english
 ---
 
 # Electra base ⚡ + SQuAD v1 ❓

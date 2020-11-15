@@ -1,4 +1,4 @@
 ---
-language: de
+language: german
 license: mit
 ---

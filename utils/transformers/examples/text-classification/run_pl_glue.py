@@ -3,7 +3,6 @@ import glob
 import logging
 import os
 import time
-from argparse import Namespace
 
 import numpy as np
 import torch
@@ -25,8 +24,6 @@ class GLUETransformer(BaseTransformer):
     mode = "sequence-classification"
 
     def __init__(self, hparams):
-        if type(hparams) == dict:
-            hparams = Namespace(**hparams)
         hparams.glue_output_mode = glue_output_modes[hparams.task]
         num_labels = glue_tasks_num_labels[hparams.task]
 
@@ -44,8 +41,7 @@ class GLUETransformer(BaseTransformer):
         outputs = self(**inputs)
         loss = outputs[0]
 
-        lr_scheduler = self.trainer.lr_schedulers[0]["scheduler"]
-        tensorboard_logs = {"loss": loss, "rate": lr_scheduler.get_last_lr()[-1]}
+        tensorboard_logs = {"loss": loss, "rate": self.lr_scheduler.get_last_lr()[-1]}
         return {"loss": loss, "log": tensorboard_logs}
 
     def prepare_data(self):
@@ -58,6 +54,7 @@ class GLUETransformer(BaseTransformer):
             cached_features_file = self._feature_file(mode)
             if os.path.exists(cached_features_file) and not args.overwrite_cache:
                 logger.info("Loading features from cached file %s", cached_features_file)
+                features = torch.load(cached_features_file)
             else:
                 logger.info("Creating features from dataset file at %s", args.data_dir)
                 examples = (
@@ -75,7 +72,7 @@ class GLUETransformer(BaseTransformer):
                 logger.info("Saving features into cached file %s", cached_features_file)
                 torch.save(features, cached_features_file)
 
-    def get_dataloader(self, mode: str, batch_size: int, shuffle: bool = False) -> DataLoader:
+    def load_dataset(self, mode, batch_size):
         "Load datasets. Called after prepare data."
 
         # We test on dev set to compare to benchmarks without having to submit to GLUE server
@@ -95,7 +92,7 @@ class GLUETransformer(BaseTransformer):
         return DataLoader(
             TensorDataset(all_input_ids, all_attention_mask, all_token_type_ids, all_labels),
             batch_size=batch_size,
-            shuffle=shuffle,
+            shuffle=True,
         )
 
     def validation_step(self, batch, batch_idx):
@@ -153,17 +150,15 @@ class GLUETransformer(BaseTransformer):
         )
 
         parser.add_argument(
-            "--task",
-            default="",
+            "--task", default="", type=str, required=True, help="The GLUE task to run",
+        )
+
+        parser.add_argument(
+            "--data_dir",
+            default=None,
             type=str,
             required=True,
-            help="The GLUE task to run",
-        )
-        parser.add_argument(
-            "--gpus",
-            default=0,
-            type=int,
-            help="The number of GPUs allocated for this, it is by default 0 meaning none",
+            help="The input data dir. Should contain the training files for the CoNLL-2003 NER task.",
         )
 
         parser.add_argument(
@@ -173,7 +168,7 @@ class GLUETransformer(BaseTransformer):
         return parser
 
 
-def main():
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_generic_args(parser, os.getcwd())
     parser = GLUETransformer.add_model_specific_args(parser, os.getcwd())
@@ -181,10 +176,7 @@ def main():
 
     # If output_dir not provided, a folder will be generated in pwd
     if args.output_dir is None:
-        args.output_dir = os.path.join(
-            "./results",
-            f"{args.task}_{time.strftime('%Y%m%d_%H%M%S')}",
-        )
+        args.output_dir = os.path.join("./results", f"{args.task}_{time.strftime('%Y%m%d_%H%M%S')}",)
         os.makedirs(args.output_dir)
 
     model = GLUETransformer(args)
@@ -192,10 +184,6 @@ def main():
 
     # Optionally, predict on dev set and write to output_dir
     if args.do_predict:
-        checkpoints = list(sorted(glob.glob(os.path.join(args.output_dir, "checkpoint-epoch=*.ckpt"), recursive=True)))
+        checkpoints = list(sorted(glob.glob(os.path.join(args.output_dir, "checkpointepoch=*.ckpt"), recursive=True)))
         model = model.load_from_checkpoint(checkpoints[-1])
-        return trainer.test(model)
-
-
-if __name__ == "__main__":
-    main()
+        trainer.test(model)

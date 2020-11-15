@@ -8,8 +8,7 @@ if is_tf_available():
     import tensorflow as tf
     from tensorflow.python.eager import context
     from tensorflow.python.framework import ops
-
-    from transformers import GradientAccumulator, create_optimizer
+    from transformers import create_optimizer, GradientAccumulator
 
 
 @require_tf

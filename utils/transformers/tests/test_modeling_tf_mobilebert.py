@@ -25,16 +25,15 @@ from .test_modeling_tf_common import TFModelTesterMixin, ids_tensor
 
 if is_tf_available():
     import tensorflow as tf
-
     from transformers.modeling_tf_mobilebert import (
+        TFMobileBertModel,
         TFMobileBertForMaskedLM,
-        TFMobileBertForMultipleChoice,
         TFMobileBertForNextSentencePrediction,
         TFMobileBertForPreTraining,
-        TFMobileBertForQuestionAnswering,
         TFMobileBertForSequenceClassification,
+        TFMobileBertForMultipleChoice,
         TFMobileBertForTokenClassification,
-        TFMobileBertModel,
+        TFMobileBertForQuestionAnswering,
     )
 
 
@@ -139,7 +138,6 @@ class TFMobileBertModelTest(TFModelTesterMixin, unittest.TestCase):
                 type_vocab_size=self.type_vocab_size,
                 initializer_range=self.initializer_range,
                 embedding_size=self.embedding_size,
-                return_dict=True,
             )
 
             return config, input_ids, token_type_ids, input_mask, sequence_labels, token_labels, choice_labels
@@ -149,44 +147,60 @@ class TFMobileBertModelTest(TFModelTesterMixin, unittest.TestCase):
         ):
             model = TFMobileBertModel(config=config)
             inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-            result = model(inputs)
+            sequence_output, pooled_output = model(inputs)
 
             inputs = [input_ids, input_mask]
-            result = model(inputs)
+            sequence_output, pooled_output = model(inputs)
 
-            result = model(input_ids)
+            sequence_output, pooled_output = model(input_ids)
 
-            self.parent.assertEqual(
-                result.last_hidden_state.shape, (self.batch_size, self.seq_length, self.hidden_size)
+            result = {
+                "sequence_output": sequence_output.numpy(),
+                "pooled_output": pooled_output.numpy(),
+            }
+            self.parent.assertListEqual(
+                list(result["sequence_output"].shape), [self.batch_size, self.seq_length, self.hidden_size]
             )
-            self.parent.assertEqual(result.pooler_output.shape, (self.batch_size, self.hidden_size))
+            self.parent.assertListEqual(list(result["pooled_output"].shape), [self.batch_size, self.hidden_size])
 
         def create_and_check_mobilebert_for_masked_lm(
             self, config, input_ids, token_type_ids, input_mask, sequence_labels, token_labels, choice_labels
         ):
             model = TFMobileBertForMaskedLM(config=config)
             inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-            result = model(inputs)
-            self.parent.assertEqual(result.logits.shape, (self.batch_size, self.seq_length, self.vocab_size))
+            (prediction_scores,) = model(inputs)
+            result = {
+                "prediction_scores": prediction_scores.numpy(),
+            }
+            self.parent.assertListEqual(
+                list(result["prediction_scores"].shape), [self.batch_size, self.seq_length, self.vocab_size]
+            )
 
         def create_and_check_mobilebert_for_next_sequence_prediction(
             self, config, input_ids, token_type_ids, input_mask, sequence_labels, token_labels, choice_labels
         ):
             model = TFMobileBertForNextSentencePrediction(config=config)
             inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-            result = model(inputs)
-            self.parent.assertEqual(result.logits.shape, (self.batch_size, 2))
+            (seq_relationship_score,) = model(inputs)
+            result = {
+                "seq_relationship_score": seq_relationship_score.numpy(),
+            }
+            self.parent.assertListEqual(list(result["seq_relationship_score"].shape), [self.batch_size, 2])
 
         def create_and_check_mobilebert_for_pretraining(
             self, config, input_ids, token_type_ids, input_mask, sequence_labels, token_labels, choice_labels
         ):
             model = TFMobileBertForPreTraining(config=config)
             inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-            result = model(inputs)
-            self.parent.assertEqual(
-                result.prediction_logits.shape, (self.batch_size, self.seq_length, self.vocab_size)
+            prediction_scores, seq_relationship_score = model(inputs)
+            result = {
+                "prediction_scores": prediction_scores.numpy(),
+                "seq_relationship_score": seq_relationship_score.numpy(),
+            }
+            self.parent.assertListEqual(
+                list(result["prediction_scores"].shape), [self.batch_size, self.seq_length, self.vocab_size]
             )
-            self.parent.assertEqual(result.seq_relationship_logits.shape, (self.batch_size, 2))
+            self.parent.assertListEqual(list(result["seq_relationship_score"].shape), [self.batch_size, 2])
 
         def create_and_check_mobilebert_for_sequence_classification(
             self, config, input_ids, token_type_ids, input_mask, sequence_labels, token_labels, choice_labels
@@ -194,8 +208,11 @@ class TFMobileBertModelTest(TFModelTesterMixin, unittest.TestCase):
             config.num_labels = self.num_labels
             model = TFMobileBertForSequenceClassification(config=config)
             inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-            result = model(inputs)
-            self.parent.assertEqual(result.logits.shape, (self.batch_size, self.num_labels))
+            (logits,) = model(inputs)
+            result = {
+                "logits": logits.numpy(),
+            }
+            self.parent.assertListEqual(list(result["logits"].shape), [self.batch_size, self.num_labels])
 
         def create_and_check_mobilebert_for_multiple_choice(
             self, config, input_ids, token_type_ids, input_mask, sequence_labels, token_labels, choice_labels
@@ -210,8 +227,11 @@ class TFMobileBertModelTest(TFModelTesterMixin, unittest.TestCase):
                 "attention_mask": multiple_choice_input_mask,
                 "token_type_ids": multiple_choice_token_type_ids,
             }
-            result = model(inputs)
-            self.parent.assertEqual(result.logits.shape, (self.batch_size, self.num_choices))
+            (logits,) = model(inputs)
+            result = {
+                "logits": logits.numpy(),
+            }
+            self.parent.assertListEqual(list(result["logits"].shape), [self.batch_size, self.num_choices])
 
         def create_and_check_mobilebert_for_token_classification(
             self, config, input_ids, token_type_ids, input_mask, sequence_labels, token_labels, choice_labels
@@ -219,17 +239,26 @@ class TFMobileBertModelTest(TFModelTesterMixin, unittest.TestCase):
             config.num_labels = self.num_labels
             model = TFMobileBertForTokenClassification(config=config)
             inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-            result = model(inputs)
-            self.parent.assertEqual(result.logits.shape, (self.batch_size, self.seq_length, self.num_labels))
+            (logits,) = model(inputs)
+            result = {
+                "logits": logits.numpy(),
+            }
+            self.parent.assertListEqual(
+                list(result["logits"].shape), [self.batch_size, self.seq_length, self.num_labels]
+            )
 
         def create_and_check_mobilebert_for_question_answering(
             self, config, input_ids, token_type_ids, input_mask, sequence_labels, token_labels, choice_labels
         ):
             model = TFMobileBertForQuestionAnswering(config=config)
             inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-            result = model(inputs)
-            self.parent.assertEqual(result.start_logits.shape, (self.batch_size, self.seq_length))
-            self.parent.assertEqual(result.end_logits.shape, (self.batch_size, self.seq_length))
+            start_logits, end_logits = model(inputs)
+            result = {
+                "start_logits": start_logits.numpy(),
+                "end_logits": end_logits.numpy(),
+            }
+            self.parent.assertListEqual(list(result["start_logits"].shape), [self.batch_size, self.seq_length])
+            self.parent.assertListEqual(list(result["end_logits"].shape), [self.batch_size, self.seq_length])
 
         def prepare_config_and_inputs_for_common(self):
             config_and_inputs = self.prepare_config_and_inputs()
@@ -287,6 +316,6 @@ class TFMobileBertModelTest(TFModelTesterMixin, unittest.TestCase):
     @slow
     def test_model_from_pretrained(self):
         # for model_name in TF_MOBILEBERT_PRETRAINED_MODEL_ARCHIVE_LIST[:1]:
-        for model_name in ["google/mobilebert-uncased"]:
+        for model_name in ["mobilebert-uncased"]:
             model = TFMobileBertModel.from_pretrained(model_name)
             self.assertIsNotNone(model)

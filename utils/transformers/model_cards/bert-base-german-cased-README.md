@@ -1,13 +1,12 @@
 ---
-language: de
-license: mit
+language: german
 thumbnail: https://static.tildacdn.com/tild6438-3730-4164-b266-613634323466/german_bert.png
 tags:
 - exbert
 ---
 
 <a href="https://huggingface.co/exbert/?model=bert-base-german-cased">
-	<img width="300px" src="https://cdn-media.huggingface.co/exbert/button.png">
+	<img width="300px" src="https://hf-dinosaur.huggingface.co/exbert/button.png">
 </a>
 
 # German BERT

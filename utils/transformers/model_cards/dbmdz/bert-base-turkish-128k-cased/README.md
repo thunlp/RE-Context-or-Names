@@ -1,5 +1,5 @@
 ---
-language: tr
+language: turkish
 license: mit
 ---
 

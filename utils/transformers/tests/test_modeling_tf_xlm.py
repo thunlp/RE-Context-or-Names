@@ -25,23 +25,20 @@ from .test_modeling_tf_common import TFModelTesterMixin, ids_tensor
 
 if is_tf_available():
     import tensorflow as tf
-
     from transformers import (
-        TF_XLM_PRETRAINED_MODEL_ARCHIVE_LIST,
-        TFXLMForMultipleChoice,
-        TFXLMForQuestionAnsweringSimple,
-        TFXLMForSequenceClassification,
-        TFXLMForTokenClassification,
+        XLMConfig,
         TFXLMModel,
         TFXLMWithLMHeadModel,
-        XLMConfig,
+        TFXLMForSequenceClassification,
+        TFXLMForQuestionAnsweringSimple,
+        TFXLMForTokenClassification,
+        TF_XLM_PRETRAINED_MODEL_ARCHIVE_LIST,
     )
 
 
 class TFXLMModelTester:
     def __init__(
-        self,
-        parent,
+        self, parent,
     ):
         self.parent = parent
         self.batch_size = 13
@@ -94,7 +91,6 @@ class TFXLMModelTester:
             sequence_labels = ids_tensor([self.batch_size], self.type_sequence_label_size)
             token_labels = ids_tensor([self.batch_size, self.seq_length], self.num_labels)
             is_impossible_labels = ids_tensor([self.batch_size], 2, dtype=tf.float32)
-            choice_labels = ids_tensor([self.batch_size], self.num_choices)
 
         config = XLMConfig(
             vocab_size=self.vocab_size,
@@ -114,7 +110,6 @@ class TFXLMModelTester:
             summary_type=self.summary_type,
             use_proj=self.use_proj,
             bos_token_id=self.bos_token_id,
-            return_dict=True,
         )
 
         return (
@@ -125,7 +120,6 @@ class TFXLMModelTester:
             sequence_labels,
             token_labels,
             is_impossible_labels,
-            choice_labels,
             input_mask,
         )
 
@@ -138,16 +132,21 @@ class TFXLMModelTester:
         sequence_labels,
         token_labels,
         is_impossible_labels,
-        choice_labels,
         input_mask,
     ):
         model = TFXLMModel(config=config)
         inputs = {"input_ids": input_ids, "lengths": input_lengths, "langs": token_type_ids}
-        result = model(inputs)
+        outputs = model(inputs)
 
         inputs = [input_ids, input_mask]
-        result = model(inputs)
-        self.parent.assertEqual(result.last_hidden_state.shape, (self.batch_size, self.seq_length, self.hidden_size))
+        outputs = model(inputs)
+        sequence_output = outputs[0]
+        result = {
+            "sequence_output": sequence_output.numpy(),
+        }
+        self.parent.assertListEqual(
+            list(result["sequence_output"].shape), [self.batch_size, self.seq_length, self.hidden_size]
+        )
 
     def create_and_check_xlm_lm_head(
         self,
@@ -158,7 +157,6 @@ class TFXLMModelTester:
         sequence_labels,
         token_labels,
         is_impossible_labels,
-        choice_labels,
         input_mask,
     ):
         model = TFXLMWithLMHeadModel(config)
@@ -166,9 +164,13 @@ class TFXLMModelTester:
         inputs = {"input_ids": input_ids, "lengths": input_lengths, "langs": token_type_ids}
         outputs = model(inputs)
 
-        result = outputs
+        logits = outputs[0]
 
-        self.parent.assertEqual(result.logits.shape, (self.batch_size, self.seq_length, self.vocab_size))
+        result = {
+            "logits": logits.numpy(),
+        }
+
+        self.parent.assertListEqual(list(result["logits"].shape), [self.batch_size, self.seq_length, self.vocab_size])
 
     def create_and_check_xlm_qa(
         self,
@@ -179,17 +181,21 @@ class TFXLMModelTester:
         sequence_labels,
         token_labels,
         is_impossible_labels,
-        choice_labels,
         input_mask,
     ):
         model = TFXLMForQuestionAnsweringSimple(config)
 
         inputs = {"input_ids": input_ids, "lengths": input_lengths}
 
-        result = model(inputs)
+        start_logits, end_logits = model(inputs)
 
-        self.parent.assertEqual(result.start_logits.shape, (self.batch_size, self.seq_length))
-        self.parent.assertEqual(result.end_logits.shape, (self.batch_size, self.seq_length))
+        result = {
+            "start_logits": start_logits.numpy(),
+            "end_logits": end_logits.numpy(),
+        }
+
+        self.parent.assertListEqual(list(result["start_logits"].shape), [self.batch_size, self.seq_length])
+        self.parent.assertListEqual(list(result["end_logits"].shape), [self.batch_size, self.seq_length])
 
     def create_and_check_xlm_sequence_classif(
         self,
@@ -200,16 +206,19 @@ class TFXLMModelTester:
         sequence_labels,
         token_labels,
         is_impossible_labels,
-        choice_labels,
         input_mask,
     ):
         model = TFXLMForSequenceClassification(config)
 
         inputs = {"input_ids": input_ids, "lengths": input_lengths}
 
-        result = model(inputs)
+        (logits,) = model(inputs)
 
-        self.parent.assertEqual(result.logits.shape, (self.batch_size, self.type_sequence_label_size))
+        result = {
+            "logits": logits.numpy(),
+        }
+
+        self.parent.assertListEqual(list(result["logits"].shape), [self.batch_size, self.type_sequence_label_size])
 
     def create_and_check_xlm_for_token_classification(
         self,
@@ -220,39 +229,16 @@ class TFXLMModelTester:
         sequence_labels,
         token_labels,
         is_impossible_labels,
-        choice_labels,
         input_mask,
     ):
         config.num_labels = self.num_labels
         model = TFXLMForTokenClassification(config=config)
         inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-        result = model(inputs)
-        self.parent.assertEqual(result.logits.shape, (self.batch_size, self.seq_length, self.num_labels))
-
-    def create_and_check_xlm_for_multiple_choice(
-        self,
-        config,
-        input_ids,
-        token_type_ids,
-        input_lengths,
-        sequence_labels,
-        token_labels,
-        is_impossible_labels,
-        choice_labels,
-        input_mask,
-    ):
-        config.num_choices = self.num_choices
-        model = TFXLMForMultipleChoice(config=config)
-        multiple_choice_inputs_ids = tf.tile(tf.expand_dims(input_ids, 1), (1, self.num_choices, 1))
-        multiple_choice_input_mask = tf.tile(tf.expand_dims(input_mask, 1), (1, self.num_choices, 1))
-        multiple_choice_token_type_ids = tf.tile(tf.expand_dims(token_type_ids, 1), (1, self.num_choices, 1))
-        inputs = {
-            "input_ids": multiple_choice_inputs_ids,
-            "attention_mask": multiple_choice_input_mask,
-            "token_type_ids": multiple_choice_token_type_ids,
+        (logits,) = model(inputs)
+        result = {
+            "logits": logits.numpy(),
         }
-        result = model(inputs)
-        self.parent.assertEqual(result.logits.shape, (self.batch_size, self.num_choices))
+        self.parent.assertListEqual(list(result["logits"].shape), [self.batch_size, self.seq_length, self.num_labels])
 
     def prepare_config_and_inputs_for_common(self):
         config_and_inputs = self.prepare_config_and_inputs()
@@ -264,7 +250,6 @@ class TFXLMModelTester:
             sequence_labels,
             token_labels,
             is_impossible_labels,
-            choice_labels,
             input_mask,
         ) = config_and_inputs
         inputs_dict = {
@@ -280,13 +265,13 @@ class TFXLMModelTester:
 class TFXLMModelTest(TFModelTesterMixin, unittest.TestCase):
 
     all_model_classes = (
+        # TODO The multiple choice model is missing and should be added.
         (
             TFXLMModel,
             TFXLMWithLMHeadModel,
             TFXLMForSequenceClassification,
             TFXLMForQuestionAnsweringSimple,
             TFXLMForTokenClassification,
-            TFXLMForMultipleChoice,
         )
         if is_tf_available()
         else ()
@@ -321,10 +306,6 @@ class TFXLMModelTest(TFModelTesterMixin, unittest.TestCase):
     def test_for_token_classification(self):
         config_and_inputs = self.model_tester.prepare_config_and_inputs()
         self.model_tester.create_and_check_xlm_for_token_classification(*config_and_inputs)
-
-    def test_for_multiple_choice(self):
-        config_and_inputs = self.model_tester.prepare_config_and_inputs()
-        self.model_tester.create_and_check_xlm_for_multiple_choice(*config_and_inputs)
 
     @slow
     def test_model_from_pretrained(self):

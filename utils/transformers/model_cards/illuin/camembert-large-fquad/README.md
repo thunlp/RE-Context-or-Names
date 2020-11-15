@@ -1,11 +1,5 @@
 ---
-language: fr
-tags:
-- question-answering
-- camembert
-license: gpl-3.0
-datasets:
-- fquad
+language: french
 ---
 
 # camembert-large-fquad

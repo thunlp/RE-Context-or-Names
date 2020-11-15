@@ -1,6 +1,3 @@
----
-language: tr
----
 # Bert-base Turkish Sentiment Model
 
 https://huggingface.co/savasy/bert-base-turkish-sentiment-cased

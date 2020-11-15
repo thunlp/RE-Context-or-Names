@@ -1,5 +1,5 @@
 ---
-language: pl
+language: polish
 ---
 
 # HerBERT tokenizer

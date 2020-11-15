@@ -1,5 +1,5 @@
 ---
-language: tr
+language: turkish
 ---
 # Turkish SQuAD  Model : Question Answering
 

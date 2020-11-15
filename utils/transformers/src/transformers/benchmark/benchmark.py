@@ -18,13 +18,18 @@
 """
 
 
+import logging
 import timeit
 from typing import Callable, Optional
 
-from ..configuration_utils import PretrainedConfig
-from ..file_utils import is_py3nvml_available, is_torch_available
-from ..modeling_auto import MODEL_MAPPING, MODEL_WITH_LM_HEAD_MAPPING
-from ..utils import logging
+from transformers import (
+    MODEL_MAPPING,
+    MODEL_WITH_LM_HEAD_MAPPING,
+    PretrainedConfig,
+    is_py3nvml_available,
+    is_torch_available,
+)
+
 from .benchmark_utils import (
     Benchmark,
     Memory,
@@ -37,7 +42,6 @@ from .benchmark_utils import (
 
 if is_torch_available():
     import torch
-
     from .benchmark_args import PyTorchBenchmarkArguments
 
 
@@ -45,7 +49,7 @@ if is_py3nvml_available():
     import py3nvml.py3nvml as nvml
 
 
-logger = logging.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class PyTorchBenchmark(Benchmark):
@@ -84,11 +88,7 @@ class PyTorchBenchmark(Benchmark):
         if self.args.torchscript:
             config.torchscript = True
 
-        has_model_class_in_config = (
-            hasattr(config, "architectures")
-            and isinstance(config.architectures, list)
-            and len(config.architectures) > 0
-        )
+        has_model_class_in_config = hasattr(config, "architecture") and len(config.architectures) > 1
         if not self.args.only_pretrain_model and has_model_class_in_config:
             try:
                 model_class = config.architectures[0]
@@ -138,11 +138,7 @@ class PyTorchBenchmark(Benchmark):
     def _prepare_train_func(self, model_name: str, batch_size: int, sequence_length: int) -> Callable[[], None]:
         config = self.config_dict[model_name]
 
-        has_model_class_in_config = (
-            hasattr(config, "architectures")
-            and isinstance(config.architectures, list)
-            and len(config.architectures) > 0
-        )
+        has_model_class_in_config = hasattr(config, "architecture") and len(config.architectures) > 1
         if not self.args.only_pretrain_model and has_model_class_in_config:
             try:
                 model_class = config.architectures[0]
@@ -161,7 +157,7 @@ class PyTorchBenchmark(Benchmark):
         else:
             train_model = model
 
-        model.train()
+        model.eval()
         model.to(self.args.device)
 
         # encoder-decoder has vocab size saved differently
@@ -179,12 +175,12 @@ class PyTorchBenchmark(Benchmark):
         def compute_loss_and_backprob_encoder():
             loss = train_model(input_ids, labels=input_ids)[0]
             loss.backward()
-            return loss
+            train_model.zero_grad()
 
         def compute_loss_and_backprob_encoder_decoder():
             loss = train_model(input_ids, decoder_input_ids=input_ids, labels=input_ids)[0]
             loss.backward()
-            return loss
+            train_model.zero_grad()
 
         _train = (
             compute_loss_and_backprob_encoder_decoder
@@ -199,17 +195,11 @@ class PyTorchBenchmark(Benchmark):
                 # run additional 10 times to stabilize compilation for tpu and torchscript
                 logger.info("Do inference on TPU or torchscript. Running model 5 times to stabilize compilation")
                 timeit.repeat(
-                    func,
-                    repeat=1,
-                    number=5,
+                    func, repeat=1, number=5,
                 )
 
             # as written in https://docs.python.org/2/library/timeit.html#timeit.Timer.repeat, min should be taken rather than the average
-            runtimes = timeit.repeat(
-                func,
-                repeat=self.args.repeat,
-                number=10,
-            )
+            runtimes = timeit.repeat(func, repeat=self.args.repeat, number=10,)
 
             if self.args.is_tpu and self.args.torch_xla_tpu_print_metrics:
                 import torch_xla.debug.metrics as met
@@ -229,7 +219,7 @@ class PyTorchBenchmark(Benchmark):
             if self.args.is_tpu:
                 # tpu
                 raise NotImplementedError(
-                    "Memory Benchmarking is currently not implemented for TPU. Please disable memory benchmarking with `--no-memory` or `args.memory=False`"
+                    "Memory Benchmarking is currently not implemented for TPU. Please disable memory benchmarking with `--no_memory` or `args.no_memory=True`"
                 )
             elif self.args.is_gpu:
                 if not is_py3nvml_available():

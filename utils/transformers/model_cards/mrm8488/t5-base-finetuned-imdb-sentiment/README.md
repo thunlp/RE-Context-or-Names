@@ -1,5 +1,5 @@
----
-language: en
+--
+language: english
 datasets:
 - imdb
 ---

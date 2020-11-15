@@ -1,5 +1,5 @@
 ---
-language: fi
+language: finnish
 ---
 
 ## Quickstart

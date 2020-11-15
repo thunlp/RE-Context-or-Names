@@ -1,5 +1,5 @@
 ---
-language: ko
+language: Korean
 ---
 
 # KoELECTRA (Small Discriminator)

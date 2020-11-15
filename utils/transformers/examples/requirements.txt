@@ -5,16 +5,11 @@ psutil
 sacrebleu
 rouge-score
 tensorflow_datasets
-pytorch-lightning==1.0.4
+pytorch-lightning==0.8.1
 matplotlib
 git-python==1.0.3
-faiss-cpu
+faiss
 streamlit
 elasticsearch
-nltk
 pandas
-datasets
-fire
-pytest
-conllu
-sentencepiece != 0.1.92
+nlp

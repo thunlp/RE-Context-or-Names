@@ -1,5 +1,5 @@
 ---
-language: es
+language: spanish
 thumbnail:
 ---
 
@@ -16,7 +16,7 @@ This model is a fine-tuned on [CONLL CORPORA](https://www.kaggle.com/nltkdata/co
 | Train                  | 445 K |
 | Dev                    | 55 K |
 
-- [Fine-tune on NER script provided by Huggingface](https://github.com/huggingface/transformers/blob/master/examples/token-classification/run_ner_old.py)
+- [Fine-tune on NER script provided by Huggingface](https://github.com/huggingface/transformers/blob/master/examples/token-classification/run_ner.py)
 
 - Labels covered:
 

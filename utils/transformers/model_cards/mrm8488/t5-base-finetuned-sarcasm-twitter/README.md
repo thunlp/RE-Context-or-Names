@@ -1,5 +1,5 @@
 ---
-language: en
+language: english
 ---
 
 # T5-base fine-tuned for Sarcasm Detection 🙄

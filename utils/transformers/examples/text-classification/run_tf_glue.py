@@ -9,7 +9,6 @@ from enum import Enum
 from typing import Dict, Optional
 
 import numpy as np
-import tensorflow as tf
 import tensorflow_datasets as tfds
 
 from transformers import (
@@ -36,11 +35,7 @@ class Split(Enum):
 
 
 def get_tfds(
-    task_name: str,
-    tokenizer: PreTrainedTokenizer,
-    max_seq_length: Optional[int] = None,
-    mode: Split = Split.train,
-    data_dir: str = None,
+    task_name: str, tokenizer: PreTrainedTokenizer, max_seq_length: Optional[int] = None, mode: Split = Split.train
 ):
     if task_name == "mnli-mm" and mode == Split.dev:
         tfds_name = "mnli_mismatched"
@@ -55,11 +50,9 @@ def get_tfds(
     else:
         tfds_name = task_name
 
-    ds, info = tfds.load("glue/" + tfds_name, split=mode.value, with_info=True, data_dir=data_dir)
-    ds = glue_convert_examples_to_features(ds, tokenizer, max_seq_length, task_name)
-    ds = ds.apply(tf.data.experimental.assert_cardinality(info.splits[mode.value].num_examples))
+    ds = tfds.load("glue/" + tfds_name, split=mode.value)
 
-    return ds
+    return glue_convert_examples_to_features(ds, tokenizer, max_seq_length, task_name)
 
 
 logger = logging.getLogger(__name__)
@@ -76,7 +69,6 @@ class GlueDataTrainingArguments:
     """
 
     task_name: str = field(metadata={"help": "The name of the task to train on: " + ", ".join(glue_processors.keys())})
-    data_dir: Optional[str] = field(default=None, metadata={"help": "The input/output data dir for TFDS."})
     max_seq_length: int = field(
         default=128,
         metadata={
@@ -179,22 +171,13 @@ def main():
 
     # Get datasets
     train_dataset = (
-        get_tfds(
-            task_name=data_args.task_name,
-            tokenizer=tokenizer,
-            max_seq_length=data_args.max_seq_length,
-            data_dir=data_args.data_dir,
-        )
+        get_tfds(task_name=data_args.task_name, tokenizer=tokenizer, max_seq_length=data_args.max_seq_length)
         if training_args.do_train
         else None
     )
     eval_dataset = (
         get_tfds(
-            task_name=data_args.task_name,
-            tokenizer=tokenizer,
-            max_seq_length=data_args.max_seq_length,
-            mode=Split.dev,
-            data_dir=data_args.data_dir,
+            task_name=data_args.task_name, tokenizer=tokenizer, max_seq_length=data_args.max_seq_length, mode=Split.dev
         )
         if training_args.do_eval
         else None

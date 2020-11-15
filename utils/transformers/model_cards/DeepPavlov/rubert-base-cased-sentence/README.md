@@ -1,6 +1,6 @@
 ---
 language:
-- ru
+- russian
 ---
 
 # rubert-base-cased-sentence

@@ -1,5 +1,5 @@
 ---
-language: en
+language: english
 license: apache-2.0
 datasets:
 - wikipedia

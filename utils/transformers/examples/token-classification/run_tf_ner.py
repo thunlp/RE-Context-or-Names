@@ -18,7 +18,6 @@
 import logging
 import os
 from dataclasses import dataclass, field
-from importlib import import_module
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -33,7 +32,7 @@ from transformers import (
     TFTrainer,
     TFTrainingArguments,
 )
-from utils_ner import Split, TFTokenClassificationDataset, TokenClassificationTask
+from utils_ner import Split, TFNerDataset, get_labels
 
 
 logger = logging.getLogger(__name__)
@@ -50,9 +49,6 @@ class ModelArguments:
     )
     config_name: Optional[str] = field(
         default=None, metadata={"help": "Pretrained config name or path if not the same as model_name"}
-    )
-    task_type: Optional[str] = field(
-        default="NER", metadata={"help": "Task type to fine tune in training (e.g. NER, POS, etc)"}
     )
     tokenizer_name: Optional[str] = field(
         default=None, metadata={"help": "Pretrained tokenizer name or path if not the same as model_name"}
@@ -106,17 +102,6 @@ def main():
             f"Output directory ({training_args.output_dir}) already exists and is not empty. Use --overwrite_output_dir to overcome."
         )
 
-    module = import_module("tasks")
-
-    try:
-        token_classification_task_clazz = getattr(module, model_args.task_type)
-        token_classification_task: TokenClassificationTask = token_classification_task_clazz()
-    except AttributeError:
-        raise ValueError(
-            f"Task {model_args.task_type} needs to be defined as a TokenClassificationTask subclass in {module}. "
-            f"Available tasks classes are: {TokenClassificationTask.__subclasses__()}"
-        )
-
     # Setup logging
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
@@ -132,7 +117,7 @@ def main():
     logger.info("Training/evaluation parameters %s", training_args)
 
     # Prepare Token Classification task
-    labels = token_classification_task.get_labels(data_args.labels)
+    labels = get_labels(data_args.labels)
     label_map: Dict[int, str] = {i: label for i, label in enumerate(labels)}
     num_labels = len(labels)
 
@@ -165,8 +150,7 @@ def main():
 
     # Get datasets
     train_dataset = (
-        TFTokenClassificationDataset(
-            token_classification_task=token_classification_task,
+        TFNerDataset(
             data_dir=data_args.data_dir,
             tokenizer=tokenizer,
             labels=labels,
@@ -179,8 +163,7 @@ def main():
         else None
     )
     eval_dataset = (
-        TFTokenClassificationDataset(
-            token_classification_task=token_classification_task,
+        TFNerDataset(
             data_dir=data_args.data_dir,
             tokenizer=tokenizer,
             labels=labels,
@@ -201,7 +184,7 @@ def main():
 
         for i in range(batch_size):
             for j in range(seq_len):
-                if label_ids[i, j] != -100:
+                if label_ids[i, j] != -1:
                     out_label_list[i].append(label_map[label_ids[i][j]])
                     preds_list[i].append(label_map[preds[i][j]])
 
@@ -250,8 +233,7 @@ def main():
 
     # Predict
     if training_args.do_predict:
-        test_dataset = TFTokenClassificationDataset(
-            token_classification_task=token_classification_task,
+        test_dataset = TFNerDataset(
             data_dir=data_args.data_dir,
             tokenizer=tokenizer,
             labels=labels,

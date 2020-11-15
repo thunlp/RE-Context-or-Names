@@ -24,23 +24,18 @@ from .test_modeling_tf_common import TFModelTesterMixin, ids_tensor
 
 
 if is_tf_available():
-    import tensorflow as tf
-
     from transformers.modeling_tf_electra import (
-        TFElectraForMaskedLM,
-        TFElectraForMultipleChoice,
-        TFElectraForPreTraining,
-        TFElectraForQuestionAnswering,
-        TFElectraForSequenceClassification,
-        TFElectraForTokenClassification,
         TFElectraModel,
+        TFElectraForMaskedLM,
+        TFElectraForPreTraining,
+        TFElectraForTokenClassification,
+        TFElectraForQuestionAnswering,
     )
 
 
 class TFElectraModelTester:
     def __init__(
-        self,
-        parent,
+        self, parent,
     ):
         self.parent = parent
         self.batch_size = 13
@@ -64,7 +59,6 @@ class TFElectraModelTester:
         self.num_labels = 3
         self.num_choices = 4
         self.scope = None
-        self.embedding_size = 128
 
     def prepare_config_and_inputs(self):
         input_ids = ids_tensor([self.batch_size, self.seq_length], self.vocab_size)
@@ -97,7 +91,6 @@ class TFElectraModelTester:
             max_position_embeddings=self.max_position_embeddings,
             type_vocab_size=self.type_vocab_size,
             initializer_range=self.initializer_range,
-            return_dict=True,
         )
 
         return config, input_ids, token_type_ids, input_mask, sequence_labels, token_labels, choice_labels
@@ -107,64 +100,56 @@ class TFElectraModelTester:
     ):
         model = TFElectraModel(config=config)
         inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-        result = model(inputs)
+        (sequence_output,) = model(inputs)
 
         inputs = [input_ids, input_mask]
-        result = model(inputs)
+        (sequence_output,) = model(inputs)
 
-        result = model(input_ids)
+        (sequence_output,) = model(input_ids)
 
-        self.parent.assertEqual(result.last_hidden_state.shape, (self.batch_size, self.seq_length, self.hidden_size))
+        result = {
+            "sequence_output": sequence_output.numpy(),
+        }
+        self.parent.assertListEqual(
+            list(result["sequence_output"].shape), [self.batch_size, self.seq_length, self.hidden_size]
+        )
 
     def create_and_check_electra_for_masked_lm(
         self, config, input_ids, token_type_ids, input_mask, sequence_labels, token_labels, choice_labels
     ):
         model = TFElectraForMaskedLM(config=config)
         inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-        result = model(inputs)
-        self.parent.assertEqual(result.logits.shape, (self.batch_size, self.seq_length, self.vocab_size))
+        (prediction_scores,) = model(inputs)
+        result = {
+            "prediction_scores": prediction_scores.numpy(),
+        }
+        self.parent.assertListEqual(
+            list(result["prediction_scores"].shape), [self.batch_size, self.seq_length, self.vocab_size]
+        )
 
     def create_and_check_electra_for_pretraining(
         self, config, input_ids, token_type_ids, input_mask, sequence_labels, token_labels, choice_labels
     ):
         model = TFElectraForPreTraining(config=config)
         inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-        result = model(inputs)
-        self.parent.assertEqual(result.logits.shape, (self.batch_size, self.seq_length))
-
-    def create_and_check_electra_for_sequence_classification(
-        self, config, input_ids, token_type_ids, input_mask, sequence_labels, token_labels, choice_labels
-    ):
-        config.num_labels = self.num_labels
-        model = TFElectraForSequenceClassification(config=config)
-        inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-        result = model(inputs)
-        self.parent.assertEqual(result.logits.shape, (self.batch_size, self.num_labels))
-
-    def create_and_check_electra_for_multiple_choice(
-        self, config, input_ids, token_type_ids, input_mask, sequence_labels, token_labels, choice_labels
-    ):
-        config.num_choices = self.num_choices
-        model = TFElectraForMultipleChoice(config=config)
-        multiple_choice_inputs_ids = tf.tile(tf.expand_dims(input_ids, 1), (1, self.num_choices, 1))
-        multiple_choice_input_mask = tf.tile(tf.expand_dims(input_mask, 1), (1, self.num_choices, 1))
-        multiple_choice_token_type_ids = tf.tile(tf.expand_dims(token_type_ids, 1), (1, self.num_choices, 1))
-        inputs = {
-            "input_ids": multiple_choice_inputs_ids,
-            "attention_mask": multiple_choice_input_mask,
-            "token_type_ids": multiple_choice_token_type_ids,
+        (prediction_scores,) = model(inputs)
+        result = {
+            "prediction_scores": prediction_scores.numpy(),
         }
-        result = model(inputs)
-        self.parent.assertEqual(result.logits.shape, (self.batch_size, self.num_choices))
+        self.parent.assertListEqual(list(result["prediction_scores"].shape), [self.batch_size, self.seq_length])
 
     def create_and_check_electra_for_question_answering(
         self, config, input_ids, token_type_ids, input_mask, sequence_labels, token_labels, choice_labels
     ):
         model = TFElectraForQuestionAnswering(config=config)
         inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-        result = model(inputs)
-        self.parent.assertEqual(result.start_logits.shape, (self.batch_size, self.seq_length))
-        self.parent.assertEqual(result.end_logits.shape, (self.batch_size, self.seq_length))
+        start_logits, end_logits = model(inputs)
+        result = {
+            "start_logits": start_logits.numpy(),
+            "end_logits": end_logits.numpy(),
+        }
+        self.parent.assertListEqual(list(result["start_logits"].shape), [self.batch_size, self.seq_length])
+        self.parent.assertListEqual(list(result["end_logits"].shape), [self.batch_size, self.seq_length])
 
     def create_and_check_electra_for_token_classification(
         self, config, input_ids, token_type_ids, input_mask, sequence_labels, token_labels, choice_labels
@@ -172,8 +157,11 @@ class TFElectraModelTester:
         config.num_labels = self.num_labels
         model = TFElectraForTokenClassification(config=config)
         inputs = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids": token_type_ids}
-        result = model(inputs)
-        self.parent.assertEqual(result.logits.shape, (self.batch_size, self.seq_length, self.num_labels))
+        (logits,) = model(inputs)
+        result = {
+            "logits": logits.numpy(),
+        }
+        self.parent.assertListEqual(list(result["logits"].shape), [self.batch_size, self.seq_length, self.num_labels])
 
     def prepare_config_and_inputs_for_common(self):
         config_and_inputs = self.prepare_config_and_inputs()
@@ -194,15 +182,7 @@ class TFElectraModelTester:
 class TFElectraModelTest(TFModelTesterMixin, unittest.TestCase):
 
     all_model_classes = (
-        (
-            TFElectraModel,
-            TFElectraForMaskedLM,
-            TFElectraForPreTraining,
-            TFElectraForTokenClassification,
-            TFElectraForMultipleChoice,
-            TFElectraForSequenceClassification,
-            TFElectraForQuestionAnswering,
-        )
+        (TFElectraModel, TFElectraForMaskedLM, TFElectraForPreTraining, TFElectraForTokenClassification,)
         if is_tf_available()
         else ()
     )
@@ -230,14 +210,6 @@ class TFElectraModelTest(TFModelTesterMixin, unittest.TestCase):
         config_and_inputs = self.model_tester.prepare_config_and_inputs()
         self.model_tester.create_and_check_electra_for_question_answering(*config_and_inputs)
 
-    def test_for_sequence_classification(self):
-        config_and_inputs = self.model_tester.prepare_config_and_inputs()
-        self.model_tester.create_and_check_electra_for_sequence_classification(*config_and_inputs)
-
-    def test_for_multiple_choice(self):
-        config_and_inputs = self.model_tester.prepare_config_and_inputs()
-        self.model_tester.create_and_check_electra_for_multiple_choice(*config_and_inputs)
-
     def test_for_token_classification(self):
         config_and_inputs = self.model_tester.prepare_config_and_inputs()
         self.model_tester.create_and_check_electra_for_token_classification(*config_and_inputs)
@@ -248,19 +220,3 @@ class TFElectraModelTest(TFModelTesterMixin, unittest.TestCase):
         for model_name in ["google/electra-small-discriminator"]:
             model = TFElectraModel.from_pretrained(model_name)
             self.assertIsNotNone(model)
-
-
-class TFElectraModelIntegrationTest(unittest.TestCase):
-    @slow
-    def test_inference_masked_lm(self):
-        model = TFElectraForPreTraining.from_pretrained("lysandre/tiny-electra-random")
-        input_ids = tf.constant([[0, 1, 2, 3, 4, 5]])
-        output = model(input_ids)[0]
-
-        expected_shape = [1, 6]
-        self.assertEqual(output.shape, expected_shape)
-
-        print(output[:, :3])
-
-        expected_slice = tf.constant([[-0.24651965, 0.8835437, 1.823782]])
-        tf.debugging.assert_near(output[:, :3], expected_slice, atol=1e-4)
