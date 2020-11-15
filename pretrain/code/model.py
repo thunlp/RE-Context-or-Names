@@ -86,15 +86,15 @@ class CP(nn.Module):
 
         m_input, m_labels = mask_tokens(input.cpu(), self.tokenizer, not_mask_pos)
         m_outputs = self.model(input_ids=m_input, labels=m_labels, attention_mask=mask)
-        m_loss = m_outputs[0]
+        m_loss = m_outputs[1]
 
         outputs = m_outputs
 
         # entity marker starter
         batch_size = input.size()[0]
         indice = torch.arange(0, batch_size)
-        h_state = outputs[2][indice, h_pos] # (batch_size * 2, hidden_size)
-        t_state = outputs[2][indice, t_pos]
+        h_state = outputs[0][indice, h_pos] # (batch_size * 2, hidden_size)
+        t_state = outputs[0][indice, t_pos]
         state = torch.cat((h_state, t_state), 1)
 
         r_loss = self.ntxloss(state, label)
@@ -139,7 +139,7 @@ class MTB(nn.Module):
         m_r_input, m_r_labels = mask_tokens(r_input.cpu(), self.tokenizer, r_not_mask_pos) 
         m_l_outputs = self.model(input_ids=m_l_input, labels=m_l_labels, attention_mask=l_mask)
         m_r_outputs = self.model(input_ids=m_r_input, labels=m_r_labels, attention_mask=r_mask)
-        m_loss = m_l_outputs[0] + m_r_outputs[0]
+        m_loss = m_l_outputs[1] + m_r_outputs[1]
 
         # sentence pair relation loss 
         l_outputs = m_l_outputs
@@ -149,13 +149,13 @@ class MTB(nn.Module):
         indice = torch.arange(0, batch_size)
         
         # left output
-        l_h_state = l_outputs[2][indice, l_ph] # (batch, hidden_size)
-        l_t_state = l_outputs[2][indice, l_pt] # (batch, hidden_size)
+        l_h_state = l_outputs[0][indice, l_ph] # (batch, hidden_size)
+        l_t_state = l_outputs[0][indice, l_pt] # (batch, hidden_size)
         l_state = torch.cat((l_h_state, l_t_state), 1) # (batch, 2 * hidden_size)
         
         # right output 
-        r_h_state = r_outputs[2][indice, r_ph] 
-        r_t_state = r_outputs[2][indice, r_pt]
+        r_h_state = r_outputs[0][indice, r_ph] 
+        r_t_state = r_outputs[0][indice, r_pt]
         r_state = torch.cat((r_h_state, r_t_state), 1)
 
         # cal similarity
