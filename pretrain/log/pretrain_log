@@ -1,3 +1,6 @@
 Thu Nov 12 17:06:12 2020
 Namespace(adam_epsilon=1e-08, alpha=0.3, bag_size=2, batch_size_per_gpu=32, cuda='4,5,6,7', device=device(type='cuda', index=0), gradient_accumulation_steps=2, hidden_size=768, local_rank=0, lr=3e-05, max_epoch=20, max_grad_norm=1, max_length=64, model='MTB', n_gpu=4, save_dir='ckpt_mtb', save_step=5000, seed=42, temperature=0.05, train_sample=True, warmup_steps=500, weight_decay=1e-05)
 ----------------------------------------------------------------------------
+Mon Nov 16 00:10:49 2020
+Namespace(adam_epsilon=1e-08, alpha=0.3, bag_size=2, batch_size_per_gpu=32, cuda='4,5,6,7', device=device(type='cuda', index=0), gradient_accumulation_steps=2, hidden_size=768, local_rank=0, lr=3e-05, max_epoch=20, max_grad_norm=1, max_length=64, model='MTB', n_gpu=4, save_dir='ckpt_mtb', save_step=5000, seed=42, temperature=0.05, train_sample=True, warmup_steps=500, weight_decay=1e-05)
+----------------------------------------------------------------------------

@@ -1,3 +1,15 @@
 bert-base	semeval	Thu Nov 12 14:24:54 2020
 @RESULT: Best Dev score is 0.889, Test score is 0.882
 --------------------------------------------------------------
+ckpt_cp	semeval	Sun Nov 15 23:46:26 2020
+@RESULT: Best Dev score is 0.877, Test score is 0.886
+--------------------------------------------------------------
+ckpt_cp	semeval	Sun Nov 15 23:50:59 2020
+@RESULT: Best Dev score is 0.881, Test score is 0.887
+--------------------------------------------------------------
+ckpt_cp	wiki80	Sun Nov 15 23:58:37 2020
+@RESULT: Best Dev score is 0.216, Test score is 0.225
+--------------------------------------------------------------
+ckpt_cp	wiki80	Mon Nov 16 00:06:30 2020
+@RESULT: Best Dev score is 0.787, Test score is 0.817
+--------------------------------------------------------------
