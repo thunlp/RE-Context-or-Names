@@ -6,7 +6,7 @@ You can download our dataset from [google drive](https://drive.google.com/file/d
 
 ### 2. Pretrained Model
 
-You can download our pretrained model MTB from [google drive]() or [Tsinghua cloud](https://cloud.tsinghua.edu.cn/f/5ce773cc67294ce488e5/?dl=1), CP from [google drive]() or [Tsinghua cloud](https://cloud.tsinghua.edu.cn/f/4097d1055962483cb6d9/?dl=1). And then place them in `./ckpt` directory.(You may need `mkdir ckpt`).
+You can download our pretrained model MTB from [google drive](https://drive.google.com/file/d/1viGnWGg3B-LasR9UWQFg3lhl-hOEl5ed/view?usp=sharing) or [Tsinghua cloud](https://cloud.tsinghua.edu.cn/f/5ce773cc67294ce488e5/?dl=1), CP from [google drive](https://drive.google.com/file/d/1WU39lYAkZ9JYXlCZFGyAxBlQ--5IU4m6/view?usp=sharing) or [Tsinghua cloud](https://cloud.tsinghua.edu.cn/f/4097d1055962483cb6d9/?dl=1). And then place them in `./ckpt` directory.(You may need `mkdir ckpt`).
 
 ### 3. Pretrain
 Pretrain MTB:
