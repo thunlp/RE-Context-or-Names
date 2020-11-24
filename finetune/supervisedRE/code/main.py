@@ -261,6 +261,10 @@ if __name__ == "__main__":
     for k in list(vars(args).keys()):
         print('%s: %s' % (k, vars(args)[k]))
     print('--------args----------\n')
+
+    # Warning
+    if args.dataset == 'semeval':
+        print("Warning! The results reported on `semeval` may be different from our paper. Because we use the official evaluation script. See `finetune/readme` for more details.")
  
     # set seed
     set_seed(args)

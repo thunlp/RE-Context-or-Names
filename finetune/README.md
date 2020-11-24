@@ -21,7 +21,12 @@ Please ensure every dataset has `train.txt`, `dev.txt`,`test.txt`and `rel2id.jso
 }
 ```
 
+**IMPORTANT**
+
+We don't use our own code to eval the models on SemEval, we use the **official** evaluation script. See https://github.com/sahitya0000/Relation-Classification/tree/master/corpus/SemEval2010_task8_scorer-v1.2. So if the results on SemEval are abnormal, please use the official script. The other datasets can be evaluated normally using this code.
+
 #### 1.2 Train
+
 Run the following scirpt:
 
 ```shell
