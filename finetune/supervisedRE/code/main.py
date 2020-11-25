@@ -263,9 +263,11 @@ if __name__ == "__main__":
     print('--------args----------\n')
 
     # Warning
+    print("*"*30)
     if args.dataset == 'semeval':
         print("Warning! The results reported on `semeval` may be different from our paper. Because we use the official evaluation script. See `finetune/readme` for more details.")
- 
+    print("*"*30)
+
     # set seed
     set_seed(args)
         

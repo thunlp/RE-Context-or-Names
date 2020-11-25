@@ -69,3 +69,6 @@ done
 
 "None" means Bert. You can use any checkpoint in `../pretrain/ckpt` directory for finetuning.
 
+**IMPORTANT**
+
+We don't provide test set. If you want to test your model, please upload your results to https://thunlp.github.io/fewrel.html. See https://github.com/thunlp/FewRel. 

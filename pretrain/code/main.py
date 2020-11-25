@@ -76,6 +76,8 @@ def train(args, model, train_dataset):
     loss_record = []
     step_record = []
     for i in range(args.max_epoch):
+        if args.local_rank != -1:    # Distributed training
+            train_sampler.set_epoch(i)
         for step, batch in enumerate(train_dataloader):
             if args.model == "MTB":
                 inputs = {"l_input": batch[0].to(args.device), "l_mask": batch[1].to(args.device), "l_ph": batch[2].to(args.device), "l_pt": batch[3].to(args.device), "r_input": batch[4].to(args.device), "r_mask": batch[5].to(args.device), "r_ph": batch[6].to(args.device),"r_pt": batch[7].to(args.device),"label": batch[8].to(args.device)}
